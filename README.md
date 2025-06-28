@@ -1,122 +1,117 @@
-# Optimization for Containment Field Construction - KRITI'25
 > 🥉 **Bronze Medal Winner!**
 >
 > This project was awarded the **Bronze Medal** in the KRITI'25 Optimization challenge, a testament to its robust and efficient heuristic-based approach.
 
-This repository contains the **Bronze Medal-winning solution** developed by **Dihing Hostel** for the **Optimization** problem statement of **KRITI'25**, the Inter-Hostel technical tournament of IIT Guwahati. The project focuses on solving a complex computational geometry problem under strict performance constraints, employing a multi-heuristic approach to maximize a given objective function.
+# Optimization for Containment Field Construction - KRITI'25
+
+> "The art of optimization lies not in perfection, but in the power of heuristics."
+
+This repository contains the **Bronze Medal-winning solution** developed by **Dihing Hostel** for the **Optimization** problem statement of **KRITI'25**, the inter-hostel technical tournament of IIT Guwahati, conducted by TechBoard IIT Guwahati.
 
 ## Table of Contents
 - [1. Project Overview](#1-project-overview)
 - [2. The Optimization Problem](#2-the-optimization-problem)
-  - [Objective](#objective)
-  - [Constraints](#constraints)
-  - [Input & Output Format](#input--output-format)
-- [3. Our Approach: A Heuristic-Driven Strategy](#3-our-approach-a-heuristic-driven-strategy)
-  - [Why Heuristics?](#why-heuristics)
-  - [Experimented (and Rejected) Approaches](#experimented-and-rejected-approaches)
-  - [The Final Multi-Heuristic Method](#the-final-multi-heuristic-method)
-- [4. The Four Core Heuristics](#4-the-four-core-heuristics)
-  - [`STRIP_X()`](#strip_x)
-  - [`STRIP_Y()`](#strip_y)
-  - [`BEST_165()`](#best_165)
-  - [`WORST_165()`](#worst_165)
-- [5. Implementation Details](#5-implementation-details)
+- [3. Our Approach: A Multi-Heuristic OOP Design](#3-our-approach-a-multi-heuristic-oop-design)
+  - [The Strategy Design Pattern](#the-strategy-design-pattern)
+- [4. Code Structure](#4-code-structure)
+- [5. The Four Core Heuristics](#5-the-four-core-heuristics)
+  - [`StripStrategy`](#stripstrategy)
+  - [`BestNPointsStrategy`](#bestnpointsstrategy)
+  - [`WorstNPointsStrategy`](#worstnpointsstrategy)
+- [6. Implementation Details](#6-implementation-details)
   - [Technology Stack](#technology-stack)
-  - [How to Run](#how-to-run)
-- [6. Results & Performance](#6-results--performance)
-- [7. Challenges Faced](#7-challenges-faced)
-- [8. Future Scope](#8-future-scope)
-- [9. Competition Context](#9-competition-context)
+  - [How to Compile and Run](#how-to-compile-and-run)
+- [7. Results & Performance](#7-results--performance)
+- [8. Challenges Faced](#8-challenges-faced)
+- [9. Future Scope](#9-future-scope)
+- [10. Competition Context](#10-competition-context)
 
 ## 1. Project Overview
-The challenge is to construct a containment field (a polygon) in a 2D space populated with valuable **Stellar Crystals** (positive points) and hazardous **Void Mines** (negative points). The goal is to design a polygon that maximizes the net value of the enclosed points. This project involves computational geometry, algorithmic design, and strategic optimization to find a near-optimal solution for large datasets within a tight time limit.
+The challenge is to construct a rectilinear polygon in a 2D space to maximize the net value of enclosed "Stellar Crystals" (positive points) while avoiding "Void Mines" (negative points). Given the massive scale of the problem space, this project implements a powerful multi-heuristic approach, where several distinct algorithms are run in parallel, and the best result is chosen.
 
 ## 2. The Optimization Problem
+The goal is to find a simple, rectilinear polygon with at most 1000 vertices that maximizes the net score `V`:
 
-### Objective
-Your space empire must construct an energy containment field to capture Stellar Crystals while avoiding Void Mines. The task is to define a polygon that maximizes the net value `V`, defined as:
+$V = \sum_{i \in \text{Crystals}} c_i - \sum_{j \in \text{Mines}} m_j$
 
-$V = \sum_{i \in \text{Stellar Crystals}} c_i - \sum_{j \in \text{Void Mines}} m_j$
+The problem involves 10,000 total points within a `10000x10000` integer coordinate space and a strict 10-minute runtime limit for 20 test cases.
 
-where `c_i` is the value of a crystal and `m_j` is the penalty of a mine inside the polygon.
+## 3. Our Approach: A Multi-Heuristic OOP Design
+A single greedy algorithm is unlikely to perform well on all possible data distributions. Our solution, therefore, runs **four different heuristic strategies** for each test case and selects the one that yields the highest score. This provides robustness and adaptability.
 
-### Constraints
-*   **Total Points:** The combined number of Stellar Crystals and Void Mines is 10,000.
-*   **Vertices Limit:** The polygon must have no more than **1000 vertices**.
-*   **Polygon Type:** The polygon must be **rectilinear**, meaning all its edges are parallel to the x-axis or y-axis.
-*   **Simple Polygon:** The polygon must **not self-intersect**.
-*   **Coordinate Space:** Vertices must have integer coordinates `(x, y)` where `0 ≤ x, y ≤ 10,000`.
-*   **Runtime Limit:** The code must process 20 test cases within a **10-minute** maximum runtime.
+The refactored code is built around a clean, object-oriented design to manage this complexity effectively.
 
-### Input & Output Format
-*   **Input:** A list of `N` Stellar Crystals `(x_i, y_i, c_i)` and `M` Void Mines `(x_j, y_j, m_j)`.
-*   **Output:** The solution must provide:
-    1.  The calculated net value (Cost).
-    2.  The number of vertices (V) and edges (E).
-    3.  A list of all E edges of the polygon.
+### The Strategy Design Pattern
+At the core of our design is the **Strategy Pattern**. We define a common abstract interface, `OptimizationStrategy`, which dictates that every heuristic must have a `solve()` method. Each of our four heuristics is then implemented as a concrete class that inherits from this interface.
 
-## 3. Our Approach: A Heuristic-Driven Strategy
+This design offers several key advantages:
+- **Encapsulation:** Each strategy's logic is self-contained.
+- **Extensibility:** New heuristics can be added easily by creating a new class, without modifying the existing solver logic.
+- **Readability:** The main solver code is clean and simply iterates through a list of strategies, making the high-level logic easy to follow.
 
-### Why Heuristics?
-Given the large input size (10,000 points) and the strict 10-minute time limit for 20 test cases, an exhaustive search for the truly optimal polygon is computationally infeasible. The search space is astronomically large. Therefore, we adopted a **greedy, heuristic-based strategy** to find high-quality solutions quickly.
+## 4. Code Structure
+The code is organized into several headers for clear separation of concerns:
 
-### Experimented (and Rejected) Approaches
-We initially considered several classical approaches but discarded them due to their unsuitability for this problem's scale and constraints:
-*   **Brute Force Search:** Exponential complexity; impossible to check all valid polygons.
-*   **Dynamic Programming:** Would require overly complex state definitions and prohibitive memory usage.
-*   **Convex Hull:** Too simplistic. A convex polygon would likely enclose many high-penalty mines, drastically reducing the score.
-*   **Clustering Algorithms:** Finding optimal clusters to enclose is itself an NP-hard problem, making it too slow.
+-   **`Constants.h`**: Centralizes all "magic numbers" (e.g., `BEST_N_POINTS = 165`) into named constants for clarity and easy tuning.
+-   **`Geometry.h`**: Defines fundamental data structures like `Point`, `Edge`, and `Polygon`. This avoids complex `std::pair` nesting and improves type safety.
+-   **`Strategies.h`**: The heart of the object-oriented design.
+    -   `ProblemContext`: A class that holds all the shared data for a problem instance (point lists, coordinate maps), eliminating the need for global variables.
+    -   `OptimizationStrategy`: The abstract base class for our Strategy Pattern.
+    -   `StripStrategy`, `BestNPointsStrategy`, `WorstNPointsStrategy`: Concrete implementations of the different heuristics.
+-   **`Solver.h`**: Contains the `Solver` class, which orchestrates the entire process. It initializes all strategies, runs them against the problem context, and identifies the best-performing solution.
+-   **`main.cpp`**: The entry point of the program. It is responsible only for handling file I/O, parsing the input, creating the `Solver`, and printing the final result.
 
-### The Final Multi-Heuristic Method
-Our final strategy acknowledges that no single greedy approach is perfect for every data distribution. We therefore developed **four distinct heuristic algorithms**. For each test case, we run all four heuristics and select the one that produces the highest net value. This approach provides robustness and adapts better to varied point distributions.
+## 5. The Four Core Heuristics
 
-## 4. The Four Core Heuristics
+Our solution's strength comes from these four distinct, complementary strategies.
 
-#### `STRIP_X()`
-This heuristic divides the 2D space into vertical strips. It calculates a cumulative score for each strip, sorts them by value, and then constructs a polygon that greedily includes the most valuable vertical regions. The polygon is formed using horizontal edges to connect these high-value strips.
+### `StripStrategy`
+This class implements the logic for both vertical and horizontal strip-based analysis, configured via an `Axis` enum (`X` or `Y`). It divides the 2D space into parallel strips, calculates a score for each, and constructs a polygon that greedily encloses the most valuable strips. This approach is highly effective when valuable points are aligned along one axis.
 
-#### `STRIP_Y()`
-Analogous to `STRIP_X()`, this method divides the space into horizontal strips. It identifies the strips with the highest net value and builds a polygon around them using vertical boundary edges, ensuring an efficient enclosure of horizontally-aligned value.
+### `BestNPointsStrategy`
+This is a point-centric greedy approach, implemented in the `BestNPointsStrategy` class. It identifies the **top 165 highest-value Stellar Crystals** and constructs a compact, rectilinear polygon around them. This method excels when high-value crystals are densely clustered.
 
-#### `BEST_165()`
-This is a point-centric greedy approach. It identifies the **top 165 highest-scoring Stellar Crystals** and constructs a compact, rectilinear polygon around them. This method excels when high-value crystals are clustered together. The number 165 was determined through experimentation to balance capturing value and keeping the vertex count low.
+### `WorstNPointsStrategy`
+Implemented in the `WorstNPointsStrategy` class, this heuristic works by exclusion. It starts with a polygon enclosing the entire space and then carves out "holes" to exclude the **165 most detrimental Void Mines**. This is effective when high-penalty mines act as clear "no-go" zones that can be easily isolated.
 
-#### `WORST_165()`
-This heuristic works by exclusion. It identifies the **165 most detrimental Void Mines** (those with the highest penalties). It then constructs a polygon that artfully avoids these mines while trying to enclose as many of the remaining positive-value crystals as possible. This is effective when high-penalty mines act as clear "no-go" zones.
-
-## 5. Implementation Details
+## 6. Implementation Details
 
 ### Technology Stack
-*   **Language:** C++ (for performance-critical computations)
-*   **Compiler:** G++ with C++17 standard and O2/O3 optimizations.
+- **Language:** C++17
+- **Core Concepts:** Object-Oriented Programming, Strategy Design Pattern.
+- **Compiler:** G++ with `-O2` or `-O3` optimization flags.
 
-### How to Run
-1.  **Compile the code:**
+### How to Compile and Run
+1.  **Organize Files:** Place all `.h` and `.cpp` files in the same directory.
+2.  **Compile the Code:**
     ```bash
     g++ -std=c++17 -O2 main.cpp -o solver
     ```
-2.  **Run the solver:**
-    The program is designed to read from standard input and write to standard output.
+3.  **Prepare Input/Output:** The input and output file paths are hardcoded in `main.cpp`. Modify these lines to match your test case files:
+    ```cpp
+    // In main.cpp
+    setup_io("input/input09.txt", "output/output09.txt");
+    ```
+4.  **Run the Solver:**
     ```bash
-    ./solver < input/testcase_01.txt > output/output_01.txt
+    ./solver
     ```
 
-## 6. Results & Performance
-By running all four heuristics on each test case and selecting the best outcome, our solution was able to effectively balance score maximization with computational efficiency. Across the test suite, we achieved an **average score of 58.25%** of the estimated maximum possible score, demonstrating the robustness of our multi-pronged approach.
+## 7. Results & Performance
+By running all four heuristics and selecting the best outcome, our solution achieved an **average score of 58.25%** of the estimated maximum, a result strong enough to secure the Bronze Medal.
 
-## 7. Challenges Faced
-1.  **Handling Large Input Size:** Processing 10,000 points efficiently required optimized data structures and sorting algorithms to avoid bottlenecks.
-2.  **Balancing Score vs. Constraints:** The primary challenge was enclosing high-value regions without exceeding the 1000-vertex limit. Our multi-heuristic approach provided the flexibility to find a suitable polygon under this constraint.
-3.  **Strict Time Constraints:** Completing 20 test cases in 10 minutes forced the abandonment of exact algorithms in favor of fast, effective greedy strategies.
+## 8. Challenges Faced
+1.  **Handling Large Input Size:** Required the use of efficient data structures (`std::map`, `std::set`) and algorithms.
+2.  **Balancing Score vs. Constraints:** The primary challenge was enclosing high-value regions without exceeding the 1000-vertex limit.
+3.  **Strict Time Constraints:** The OOP structure, combined with efficient C++, allowed our greedy strategies to execute well within the time limit.
 
-## 8. Future Scope
-While our solution proved effective, there are several avenues for future improvement:
-*   **Implementing Machine Learning:** Train a classifier to predict which of the four heuristics will perform best for a given test case based on input data features (e.g., point density, value distribution), saving runtime by avoiding redundant computations.
-*   **Enhancing the Optimization Strategy:** Explore more advanced metaheuristics like **Simulated Annealing** or **Genetic Algorithms** to refine the initial polygons generated by our greedy methods.
-*   **Handling Larger & More Complex Datasets:** Optimize the code further to scale to even larger datasets, potentially for real-world applications like geospatial resource planning.
+## 9. Future Scope
+- **ML-Powered Heuristic Selection:** Train a model to predict the best heuristic for a given input, skipping the execution of less promising ones to save time.
+- **Advanced Metaheuristics:** Use the output of our greedy strategies as a starting point for refinement algorithms like Simulated Annealing or Genetic Algorithms.
+- **Code Refinement:** The logic for `BestNPointsStrategy` and `WorstNPointsStrategy` in the refactored code uses simple bounding boxes. The original, more complex polygon-winding logic could be integrated into these classes for potentially higher scores.
 
-## 9. Competition Context
+## 10. Competition Context
 - **Event:** KRITI'25
-- **Organizer:** Techboard, IIT Guwahati
+- **Organizer:** TechBoard, IIT Guwahati
 - **Team:** Hostel 76
 - **Achievement:** 🥉 **Bronze Medal**
