@@ -1,10 +1,8 @@
+# Optimization for Containment Field Construction - KRITI'25
+
 > 🥉 **Bronze Medal Winner!**
 >
 > This project was awarded the **Bronze Medal** in the KRITI'25 Optimization challenge, a testament to its robust and efficient heuristic-based approach.
-
-# Optimization for Containment Field Construction - KRITI'25
-
-> "The art of optimization lies not in perfection, but in the power of heuristics."
 
 This repository contains the **Bronze Medal-winning solution** developed by **Dihing Hostel** for the **Optimization** problem statement of **KRITI'25**, the inter-hostel technical tournament of IIT Guwahati, conducted by TechBoard IIT Guwahati.
 
