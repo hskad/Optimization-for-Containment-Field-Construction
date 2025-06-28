@@ -111,5 +111,5 @@ By running all four heuristics and selecting the best outcome, our solution achi
 ## 10. Competition Context
 - **Event:** KRITI'25
 - **Organizer:** TechBoard, IIT Guwahati
-- **Team:** Hostel 76
+- **Team:** Dihing Hostel
 - **Achievement:** 🥉 **Bronze Medal**
